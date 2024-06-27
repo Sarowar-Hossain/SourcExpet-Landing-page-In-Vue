@@ -1,0 +1,17 @@
+.root {
+  @apply relative py-8 md:py-0 md:h-[40vh] flex items-center rounded-3xl container mx-auto mb-10 text-white;
+  flex-shrink: 0;
+  background: #1b1919;
+}
+
+.body {
+  @apply flex flex-col md:flex-row md:items-center gap-5 md:gap-0 justify-between w-4/5 mx-auto;
+}
+
+.input {
+  @apply bg-transparent text-center rounded-none text-white border-2 py-3 outline-none;
+}
+
+.btn {
+  @apply rounded-none bg-white text-[#000000] py-3 font-bold;
+}
