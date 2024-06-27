@@ -12,7 +12,8 @@
                   Join our Newsletter & stay updated
                 </h1>
                 <p class="text-base">
-                  Receive latest news, updates and many other news every week.
+                  Receive the latest news, updates, and many other news every
+                  week.
                 </p>
               </div>
               <div class="w-full md:w-[50%] space-y-4">
@@ -87,6 +88,7 @@
 
 <script>
 import { ref } from "vue";
+import axios from "axios";
 import { Loader } from "lucide-vue-next";
 import s from "./Newsletter.module.css";
 
@@ -96,7 +98,6 @@ export default {
     Loader,
   },
   setup() {
-    const showConfetti = ref(false);
     const emailSubmit = ref(false);
     const loading = ref(false);
     const email = ref("");
@@ -104,7 +105,7 @@ export default {
 
     const validateEmail = () => {
       const emailRegex =
-        /^(([^<script>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       if (!email.value) {
         emailError.value = "Email Address is required";
       } else if (!emailRegex.test(email.value)) {
@@ -114,21 +115,29 @@ export default {
       }
     };
 
-    const onSubmit = () => {
+    const onSubmit = async () => {
+      validateEmail();
       if (!emailError.value) {
         loading.value = true;
-        console.log({ email: email.value });
-        setTimeout(() => {
+        try {
+          await axios.post(
+            "http://localhost:8080/api/newsletter/send-newsletter",
+            {
+              email: email.value,
+            }
+          );
           emailSubmit.value = true;
-          showConfetti.value = true;
           email.value = "";
+        } catch (error) {
+          emailError.value =
+            "An error occurred while submitting your email. Please try again later.";
+        } finally {
           loading.value = false;
-        }, 2000);
+        }
       }
     };
 
     return {
-      showConfetti,
       emailSubmit,
       loading,
       email,
@@ -141,6 +150,4 @@ export default {
 };
 </script>
 
-<style module>
-
-</style>
+<style module></style>

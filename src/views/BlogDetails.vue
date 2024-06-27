@@ -1,42 +1,68 @@
 <template>
-  <div v-if="blog" class="blog-detail">
-    <img :src="blog.coverImage" :alt="blog.title" class="blog-image" />
-    <h1 class="text-3xl font-semibold my-4">{{ blog.title }}</h1>
-    <p class="blog-date">{{ formatDate(blog.date) }}</p>
-    <div class="blog-content text-lg">{{ blog.desc }}</div>
+  <div>
+    <div v-if="loading" class="loader-container">
+      <Loader class="flex justify-center items-center text-black" />
+    </div>
+    <div v-else-if="error" class="error">
+      {{ error }}
+    </div>
+    <div v-else-if="blog" class="blog-detail">
+      <img :src="blog.coverImage" :alt="blog.title" class="blog-image" />
+      <h1 class="text-3xl font-semibold my-4">{{ blog.title }}</h1>
+      <p class="blog-date">{{ formatDate(blog.date) }}</p>
+      <div class="blog-content text-lg">{{ blog.desc }}</div>
+    </div>
+    <Newsletter />
   </div>
-  <Newsletter />
 </template>
 
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { BlogData } from "../../data/BlogData.js";
+import axios from "axios";
 import Newsletter from "../components/NewsLetter.vue";
+import Loader from "../components/icons/Loader.vue";
 
 export default {
   name: "BlogDetail",
+  components: {
+    Newsletter,
+    Loader,
+  },
   setup() {
     const route = useRoute();
     const blog = ref(null);
+    const loading = ref(true);
+    const error = ref(null);
 
     const formatDate = (dateString) => {
       const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
+    const fetchBlog = async (id) => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/blog/${id}`);
+        blog.value = response.data;
+      } catch (err) {
+        error.value = "An error occurred while fetching the blog. Please try again later.";
+      } finally {
+        loading.value = false;
+      }
+    };
+
     onMounted(() => {
-      const blogId = parseInt(route.params.id);
-      blog.value = BlogData.find((b) => b.id === blogId);
+      window.scrollTo(0, 0); // Scroll to the top of the page
+      const blogId = route.params.id;
+      fetchBlog(blogId);
     });
 
     return {
       blog,
+      loading,
+      error,
       formatDate,
     };
-  },
-  components: {
-    Newsletter,
   },
 };
 </script>
@@ -62,5 +88,25 @@ export default {
 
 .blog-content {
   line-height: 1.6;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loader {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 50px;
+}
+
+.error {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 50px;
+  color: red;
 }
 </style>

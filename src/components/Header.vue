@@ -9,23 +9,31 @@
           <router-link
             to="/services"
             class="cursor-pointer flex gap-3 items-center hover:text-[#2eb5f7]"
-            >Services</router-link
+            active-class="text-[#2eb5f7] font-semibold"
           >
+            Services
+          </router-link>
           <router-link
             to="/about"
             class="cursor-pointer flex gap-3 items-center hover:text-[#2eb5f7]"
-            >About</router-link
+            active-class="text-[#2eb5f7] font-semibold"
           >
+            About
+          </router-link>
           <router-link
             to="/blog"
             class="cursor-pointer flex gap-3 items-center hover:text-[#2eb5f7]"
-            >Blog</router-link
+            active-class="text-[#2eb5f7] font-semibold"
           >
+            Blog
+          </router-link>
           <router-link
             to="/contact"
             class="bg-[#2eb5f7] text-white px-4 py-2 font-semibold rounded-md"
-            >Contact Us</router-link
+            active-class="bg-[#1d9ac5]"
           >
+            Contact Us
+          </router-link>
         </div>
       </div>
     </div>

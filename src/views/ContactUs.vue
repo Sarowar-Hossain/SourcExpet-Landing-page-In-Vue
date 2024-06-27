@@ -41,9 +41,14 @@
         </div>
         <button
           type="submit"
-          class="w-full bg-[#2eb5f7] text-white py-2 px-4 rounded-md"
+          class="w-full bg-[#2eb5f7] text-white py-2 px-4 rounded-md flex items-center justify-center"
         >
-          Send Message
+          <template v-if="loading">
+            <div class="w-6 h-6 animate-spin">
+              <Loader />
+            </div>
+          </template>
+          <template v-else> Send Message </template>
         </button>
       </form>
     </div>
@@ -51,66 +56,108 @@
 </template>
 
 <script>
+import axios from "axios";
+import { ref } from "vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
+import { useRouter } from "vue-router";
+import { Loader } from "lucide-vue-next";
+
 export default {
   name: "ContactUs",
-  data() {
-    return {
-      form: {
-        name: "",
-        email: "",
-        phone: "",
-        organization: "",
-        product: "",
-        quantity: "",
-        destination: "",
-        message: "",
-      },
-      errors: {},
-      fields: [
-        { name: "name", label: "Your Name", type: "text" },
-        { name: "email", label: "Email", type: "email" },
-        { name: "phone", label: "Phone No", type: "text" },
-        {
-          name: "organization",
-          label: "Organization / Company Name",
-          type: "text",
-        },
-        { name: "product", label: "Type of product", type: "text" },
-        { name: "quantity", label: "Approx product quantity", type: "text" },
-        { name: "destination", label: "Shipping destination", type: "text" },
-        { name: "message", label: "Your Message", type: "textarea" },
-      ],
-    };
+  components: {
+    Loader,
   },
-  methods: {
-    handleSubmit() {
-      this.errors = {};
-      let valid = true;
-      const $toast = useToast();
+  setup() {
+    const form = ref({
+      name: "",
+      email: "",
+      phone: "",
+      organization: "",
+      product: "",
+      quantity: "",
+      destination: "",
+      message: "",
+    });
+    const errors = ref({});
+    const fields = ref([
+      { name: "name", label: "Your Name", type: "text" },
+      { name: "email", label: "Email", type: "email" },
+      { name: "phone", label: "Phone No", type: "text" },
+      {
+        name: "organization",
+        label: "Organization / Company Name",
+        type: "text",
+      },
+      { name: "product", label: "Type of product", type: "text" },
+      { name: "quantity", label: "Approx product quantity", type: "text" },
+      { name: "destination", label: "Shipping destination", type: "text" },
+      { name: "message", label: "Your Message", type: "textarea" },
+    ]);
+    const loading = ref(false);
+    const toast = useToast();
+    const router = useRouter();
 
-      for (let field in this.form) {
-        if (!this.form[field]) {
-          this.errors[field] = `${
-            this.fields.find((f) => f.name === field).label
-          } is required.`;
+    const handleSubmit = async () => {
+      errors.value = {};
+      let valid = true;
+
+      fields.value.forEach((field) => {
+        if (!form.value[field.name]) {
+          errors.value[field.name] = `${field.label} is required.`;
           valid = false;
         }
-      }
+      });
 
       if (valid) {
-        $toast.success("Form submitted successfully!", {
-          position: "top",
-        });
-        console.log(this.form);
-        // Handle form submission logic here
+        loading.value = true;
+        try {
+          await axios.post(
+            "http://localhost:8080/api/contact/send-message",
+            form.value
+          );
+          toast.success("Form submitted successfully!", {
+            position: "top",
+          });
+          form.value = {
+            name: "",
+            email: "",
+            phone: "",
+            organization: "",
+            product: "",
+            quantity: "",
+            destination: "",
+            message: "",
+          };
+          router.push("/");
+        } catch (error) {
+          toast.error(
+            "An error occurred while submitting the form. Please try again later.",
+            {
+              position: "top",
+            }
+          );
+        } finally {
+          loading.value = false;
+        }
       } else {
-        $toast.error("Please fill out all required fields.", {
+        toast.error("Please fill out all required fields.", {
           position: "top",
         });
       }
-    },
+    };
+
+    return {
+      form,
+      errors,
+      fields,
+      loading,
+      handleSubmit,
+    };
   },
 };
 </script>
+
+<style scoped>
+/* Your styles here */
+</style>

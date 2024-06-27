@@ -14,7 +14,7 @@
         empower Shopify merchants to scale with confidence.
       </p>
       <button
-        @click="navigateTo('/contact-us')"
+        @click="navigateTo('/contact')"
         class="border font-medium px-6 py-2 bg-[#2eb5f7] text-white border-none rounded-md"
       >
         Request a quote
